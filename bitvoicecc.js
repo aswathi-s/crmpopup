@@ -623,21 +623,21 @@ async function processIncomingEvent(eventData) {
         );
 
         let contactId = null;
-        let linkedAccId = null;
+        let linkedOppId = null;
 
         if (contacts.list.length > 0) {
             contactId = contacts.list[0].id;
             // 3. Search linked Opportunities
-            const linkedAcct = await Espo.Ajax.getRequest(
-                `Account?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
+            const linkedOpps = await Espo.Ajax.getRequest(
+                `Opportunity?maxSize=1&where[0][attribute]=contactId&where[0][type]=equals&where[0][value]=${contactId}`
             );
-            if (linkedAcct.list.length > 0) {
-                linkedAccId = linkedAcct.list[0].id;
+            if (linkedOpps.list.length > 0) {
+                linkedOppId = linkedOpps.list[0].id;
             }
         }
 
-        if (linkedAccId) {
-            window.location.hash = `#Account/view/${linkedAccId}`;
+        if (linkedOppId) {
+            window.location.hash = `#Opportunity/view/${linkedOppId}`;
             return;
         }
 
