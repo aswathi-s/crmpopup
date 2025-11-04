@@ -625,8 +625,8 @@ async function processIncomingEvent(eventData) {
         let contactId = null;
         let linkedAccId = null;
 
-        if (contacts.list.length > 0) {
-            contactId = contacts.list[0].id;
+        // if (contacts.list.length > 0) {
+            // contactId = contacts.list[0].id;
             // 3. Search linked Opportunities
             const linkedAcct = await Espo.Ajax.getRequest(
                 `Account?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
@@ -634,7 +634,7 @@ async function processIncomingEvent(eventData) {
             if (linkedAcct.list.length > 0) {
                 linkedAccId = linkedAcct.list[0].id;
             }
-        }
+        // }
 
         if (linkedAccId) {
             window.location.hash = `#Account/view/${linkedAccId}`;
