@@ -599,23 +599,23 @@ async function processIncomingEvent(eventData) {
 
 
         // 0. Search for existing Leads
-        // const leads = await Espo.Ajax.getRequest(
-        // //     `Lead?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
-        // // );
-        // // if (leads.list.length > 0) {
-        // //     window.location.hash = `#Lead/view/${leads.list[0].id}`;
-        // //     return;
-        // // }
+        const leads = await Espo.Ajax.getRequest(
+            `Lead?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
+        );
+        if (leads.list.length > 0) {
+            window.location.hash = `#Lead/view/${leads.list[0].id}`;
+            return;
+        }
 
-        // // // 1. First search direct Opportunities
-        // // const directOpps = await Espo.Ajax.getRequest(
-        // //     `Opportunity?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
-        // // );
+        // 1. First search direct Opportunities
+        const directOpps = await Espo.Ajax.getRequest(
+            `Opportunity?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
+        );
 
-        // // if (directOpps.list.length > 0) {
-        // //     window.location.hash = `#Opportunity/view/${directOpps.list[0].id}`;
-        // //     return;
-        // // }
+        if (directOpps.list.length > 0) {
+            window.location.hash = `#Opportunity/view/${directOpps.list[0].id}`;
+            return;
+        }
 
         // 2. Search Contacts
         const contacts = await Espo.Ajax.getRequest(
@@ -642,16 +642,16 @@ async function processIncomingEvent(eventData) {
         }
 
         //showEnquiryModal(contactId);
-        // showLeadModal(contactId);
+        showLeadModal(contactId);
 
     } catch (error) {
         console.error('BitvoiceCC Error:', error);
         // Fallback to create page with parameters
-        // const params = new URLSearchParams({
-        //     phoneNumber: phoneNumber,
-        //     contactId: contactId || ''
-        // });
-        window.location.hash = `#Account`;
+        const params = new URLSearchParams({
+            phoneNumber: phoneNumber,
+            contactId: contactId || ''
+        });
+        window.location.hash = `#Opportunity/create?${params.toString()}`;
     }
 
 }
