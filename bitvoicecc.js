@@ -588,62 +588,63 @@ async function processIncomingEvent(eventData) {
     };
 
     try {
+
         // 0. Search for existing Leads
-        //const leads = await Espo.Ajax.getRequest(
-           // `Lead?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
-        // );
-        // if (leads.list.length > 0) {
-        //     window.location.hash = `#Lead/view/${leads.list[0].id}`;
-        //     return;
-        // }
+        const leads = await Espo.Ajax.getRequest(
+            `Lead?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
+        );
+        if (leads.list.length > 0) {
+            window.location.hash = `#Lead/view/${leads.list[0].id}`;
+            return;
+        }
 
-        // // 1. First search direct Opportunities
-        // const directOpps = await Espo.Ajax.getRequest(
-        //     `Opportunity?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
-        // );
+        // 1. First search direct Opportunities
+        const directOpps = await Espo.Ajax.getRequest(
+            `Opportunity?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
+        );
 
-        // if (directOpps.list.length > 0) {
-        //     window.location.hash = `#Opportunity/view/${directOpps.list[0].id}`;
-        //     return;
-        // }
+        if (directOpps.list.length > 0) {
+            window.location.hash = `#Opportunity/view/${directOpps.list[0].id}`;
+            return;
+        }
 
         // 2. Search Contacts
-                // 2. Search Contacts
         const contacts = await Espo.Ajax.getRequest(
             `Contact?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
         );
 
         let contactId = null;
-        let linkedAccId = null;
+        let linkedOppId = null;
 
         if (contacts.list.length > 0) {
             contactId = contacts.list[0].id;
-            // 3. Search linked Account
-            const linkedAcct = await Espo.Ajax.getRequest(
-                `Account?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
+            // 3. Search linked Opportunities
+            const linkedOpps = await Espo.Ajax.getRequest(
+                `Opportunity?maxSize=1&where[0][attribute]=contactId&where[0][type]=equals&where[0][value]=${contactId}`
             );
-            if (linkedAcct.list.length > 0) {
-                linkedAccId = linkedAcct.list[0].id;
+            if (linkedOpps.list.length > 0) {
+                linkedOppId = linkedOpps.list[0].id;
             }
         }
 
-        if (linkedAccId) {
-            window.location.hash = `#Account/view/${linkedAccId}`;
+        if (linkedOppId) {
+            window.location.hash = `#Opportunity/view/${linkedOppId}`;
             return;
         }
 
         //showEnquiryModal(contactId);
-        // showLeadModal(contactId);
+        showLeadModal(contactId);
 
     } catch (error) {
         console.error('BitvoiceCC Error:', error);
         // Fallback to create page with parameters
-        // const params = new URLSearchParams({
-        //     phoneNumber: phoneNumber,
-        //     contactId: contactId || ''
-        // });
-        window.location.hash = `#Account`;
+        const params = new URLSearchParams({
+            phoneNumber: phoneNumber,
+            contactId: contactId || ''
+        });
+        window.location.hash = `#Opportunity/create?${params.toString()}`;
     }
+
 }
 
 function formatPhoneNumber(phoneNumber) {
