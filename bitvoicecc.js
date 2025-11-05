@@ -610,40 +610,35 @@ async function processIncomingEvent(eventData) {
 
         // 2. Search Contacts
         const contacts = await Espo.Ajax.getRequest(
-            `Contact?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
-        );
+        `Contact?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
+    );
 
-        let contactId = null;
-        let linkedOppId = null;
+    let contactId = null;
+    let linkedAccId = null;
 
-        if (contacts.list.length > 0) {
-            contactId = contacts.list[0].id;
-            // 3. Search linked Opportunities
-            const linkedOpps = await Espo.Ajax.getRequest(
-                `Opportunity?maxSize=1&where[0][attribute]=contactId&where[0][type]=equals&where[0][value]=${contactId}`
-            );
-            if (linkedOpps.list.length > 0) {
-                linkedOppId = linkedOpps.list[0].id;
-            }
-        }
+    if (contacts.list.length > 0) {
+        const contact = contacts.list[0];
+        contactId = contact.id;
 
-        if (linkedOppId) {
-            window.location.hash = `#Opportunity/view/${linkedOppId}`;
-            return;
-        }
-
-        //showEnquiryModal(contactId);
-        showLeadModal(contactId);
-
-    } catch (error) {
-        console.error('BitvoiceCC Error:', error);
-        // Fallback to create page with parameters
-        const params = new URLSearchParams({
-            phoneNumber: phoneNumber,
-            contactId: contactId || ''
-        });
-        window.location.hash = `#Opportunity/create?${params.toString()}`;
+        // ✅ Check if Contact is linked to any Account
+        linkedAccId = contact.accountId || (contact.accountsIds ? contact.accountsIds[0] : null);
     }
+
+    if (linkedAccId) {
+        // ✅ If the contact has a linked account → open Account view
+        window.location.hash = `#Account/view/${linkedAccId}`;
+        return;
+    } else {
+        // ❌ No linked account → open Account list view
+        window.location.hash = `#Account`;
+        return;
+    }
+
+} catch (error) {
+    console.error('BitvoiceCC Error:', error);
+    // If any error, fallback to Account list
+    window.location.hash = `#Account`;
+}
 
 }
 
