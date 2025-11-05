@@ -588,13 +588,6 @@ async function processIncomingEvent(eventData) {
     };
 
 
-
-
-
-
-
-
-
     try {
 
 
@@ -617,39 +610,43 @@ async function processIncomingEvent(eventData) {
         //     return;
         // }
 
-         // 1. Search for Contact by phone number
-    cconst contacts = await Espo.Ajax.getRequest(
-        `Contact?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
-    );
+        // 2. Search Contacts
+                // 2. Search Contacts
+        const contacts = await Espo.Ajax.getRequest(
+            `Contact?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
+        );
 
-    let contactId = null;
-    let linkedAccId = null;
+        let contactId = null;
+        let linkedAccId = null;
 
-    if (contacts.list.length > 0) {
-        const contact = contacts.list[0];
-        contactId = contact.id;
+        if (contacts.list.length > 0) {
+            contactId = contacts.list[0].id;
+            // 3. Search linked Account
+            const linkedAcct = await Espo.Ajax.getRequest(
+                `Account?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
+            );
+            if (linkedAcct.list.length > 0) {
+                linkedAccId = linkedAcct.list[0].id;
+            }
+        }
 
-        // ✅ Get linked account ID directly from Contact
-        linkedAccId = contact.accountId || (contact.accountsIds ? contact.accountsIds[0] : null);
+        if (linkedAccId) {
+            window.location.hash = `#Account/view/${linkedAccId}`;
+            return;
+        }
+
+        //showEnquiryModal(contactId);
+        // showLeadModal(contactId);
+
+    } catch (error) {
+        console.error('BitvoiceCC Error:', error);
+        // Fallback to create page with parameters
+        // const params = new URLSearchParams({
+        //     phoneNumber: phoneNumber,
+        //     contactId: contactId || ''
+        // });
+        window.location.hash = `#Account`;
     }
-
-    if (linkedAccId) {
-        window.location.hash = `#Account/view/${linkedAccId}`;
-        return;
-    }
-
-    if (contactId) {
-        window.location.hash = `#Contact/view/${contactId}`;
-        return;
-    }
-
-    // No contact/account found → fallback
-    window.location.hash = `#Account`;
-
-} catch (error) {
-    console.error('BitvoiceCC Error:', error);
-    window.location.hash = `#Account`;
-}
 
 
 }
