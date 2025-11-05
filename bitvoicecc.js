@@ -587,10 +587,7 @@ async function processIncomingEvent(eventData) {
         }
     };
 
-
     try {
-
-
         // 0. Search for existing Leads
         //const leads = await Espo.Ajax.getRequest(
            // `Lead?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
@@ -647,15 +644,7 @@ async function processIncomingEvent(eventData) {
         // });
         window.location.hash = `#Account`;
     }
-
-
 }
-
-
-
-
-
-
 
 function formatPhoneNumber(phoneNumber) {
     if (!phoneNumber) {
