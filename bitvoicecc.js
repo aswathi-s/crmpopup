@@ -618,7 +618,7 @@ async function processIncomingEvent(eventData) {
         // }
 
          // 1. Search for Contact by phone number
-    const contacts = await Espo.Ajax.getRequest(
+    cconst contacts = await Espo.Ajax.getRequest(
         `Contact?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
     );
 
@@ -629,25 +629,22 @@ async function processIncomingEvent(eventData) {
         const contact = contacts.list[0];
         contactId = contact.id;
 
-        // Check if Contact is linked to an Account
+        // ✅ Get linked account ID directly from Contact
         linkedAccId = contact.accountId || (contact.accountsIds ? contact.accountsIds[0] : null);
     }
 
     if (linkedAccId) {
-        // Navigate directly to Account
         window.location.hash = `#Account/view/${linkedAccId}`;
         return;
     }
 
-    // If no account found, open contact or popup
     if (contactId) {
         window.location.hash = `#Contact/view/${contactId}`;
         return;
     }
 
-    // Otherwise show create or lead modal
-    // showEnquiryModal(contactId);
-    // showLeadModal(contactId);
+    // No contact/account found → fallback
+    window.location.hash = `#Account`;
 
 } catch (error) {
     console.error('BitvoiceCC Error:', error);
