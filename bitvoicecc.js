@@ -600,7 +600,7 @@ async function processIncomingEvent(eventData) {
 
         // 0. Search for existing Leads
         //const leads = await Espo.Ajax.getRequest(
-            `Lead?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
+           // `Lead?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
         // );
         // if (leads.list.length > 0) {
         //     window.location.hash = `#Lead/view/${leads.list[0].id}`;
@@ -617,43 +617,42 @@ async function processIncomingEvent(eventData) {
         //     return;
         // }
 
-        // 2. Search Contacts
-                // 2. Search Contacts
-        const contacts = await Espo.Ajax.getRequest(
-            `Contact?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
-        );
+         // 1. Search for Contact by phone number
+    const contacts = await Espo.Ajax.getRequest(
+        `Contact?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
+    );
 
-        let contactId = null;
-        let linkedAccId = null;
+    let contactId = null;
+    let linkedAccId = null;
 
-        if (contacts.list.length > 0) {
-            contactId = contacts.list[0].id;
-            // 3. Search linked Account
-            const linkedAcct = await Espo.Ajax.getRequest(
-                `Account?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
-            );
-            if (linkedAcct.list.length > 0) {
-                linkedAccId = linkedAcct.list[0].id;
-            }
-        }
+    if (contacts.list.length > 0) {
+        const contact = contacts.list[0];
+        contactId = contact.id;
 
-        if (linkedAccId) {
-            window.location.hash = `#Account/view/${linkedAccId}`;
-            return;
-        }
-
-        //showEnquiryModal(contactId);
-        // showLeadModal(contactId);
-
-    } catch (error) {
-        console.error('BitvoiceCC Error:', error);
-        // Fallback to create page with parameters
-        // const params = new URLSearchParams({
-        //     phoneNumber: phoneNumber,
-        //     contactId: contactId || ''
-        // });
-        window.location.hash = `#Account`;
+        // Check if Contact is linked to an Account
+        linkedAccId = contact.accountId || (contact.accountsIds ? contact.accountsIds[0] : null);
     }
+
+    if (linkedAccId) {
+        // Navigate directly to Account
+        window.location.hash = `#Account/view/${linkedAccId}`;
+        return;
+    }
+
+    // If no account found, open contact or popup
+    if (contactId) {
+        window.location.hash = `#Contact/view/${contactId}`;
+        return;
+    }
+
+    // Otherwise show create or lead modal
+    // showEnquiryModal(contactId);
+    // showLeadModal(contactId);
+
+} catch (error) {
+    console.error('BitvoiceCC Error:', error);
+    window.location.hash = `#Account`;
+}
 
 
 }
