@@ -623,36 +623,35 @@ async function processIncomingEvent(eventData) {
         );
 
         let contactId = null;
-        let linkedOppId = null;
+        let linkedAccId = null;
 
-        if (contacts.list.length > 0) {
-            contactId = contacts.list[0].id;
-            // 3. Search linked Opportunities
-            const linkedOpps = await Espo.Ajax.getRequest(
-                `Opportunity?maxSize=1&where[0][attribute]=contactId&where[0][type]=equals&where[0][value]=${contactId}`
-            );
-            if (linkedOpps.list.length > 0) {
-                linkedOppId = linkedOpps.list[0].id;
-            }
-        }
+    if (contacts.list.length > 0) {
+        const contact = contacts.list[0];
+        contactId = contact.id;
 
-        if (linkedOppId) {
-            window.location.hash = `#Opportunity/view/${linkedOppId}`;
-            return;
-        }
-
-        //showEnquiryModal(contactId);
-        showLeadModal(contactId);
-
-    } catch (error) {
-        console.error('BitvoiceCC Error:', error);
-        // Fallback to create page with parameters
-        const params = new URLSearchParams({
-            phoneNumber: phoneNumber,
-            contactId: contactId || ''
-        });
-        window.location.hash = `#Opportunity/create?${params.toString()}`;
+        // ✅ Get linked Account ID directly from the Contact
+        linkedAccId = contact.accountId || (contact.accountsIds ? contact.accountsIds[0] : null);
     }
+
+    if (linkedAccId) {
+        // ✅ Contact has a linked Account → open that Account view
+        window.location.hash = `#Account/view/${linkedAccId}`;
+        return;
+    }
+
+    if (contactId) {
+        // ❌ No linked Account → open Account list view
+        window.location.hash = `#Account`;
+        return;
+    }
+
+    // ❌ No contact found → also open Account list view
+    window.location.hash = `#Account`;
+
+} catch (error) {
+    console.error('BitvoiceCC Error:', error);
+    window.location.hash = `#Account`;
+}
 
 }
 
