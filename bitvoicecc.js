@@ -646,6 +646,7 @@ async function processIncomingEvent(eventData) {
     }
 }
 
+
 function formatPhoneNumber(phoneNumber) {
     if (!phoneNumber) {
         console.error("BitvoiceCC: Missing required phoneNumber");
