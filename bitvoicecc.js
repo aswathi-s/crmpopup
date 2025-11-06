@@ -612,7 +612,6 @@ async function processIncomingEvent(eventData) {
         const contacts = await Espo.Ajax.getRequest(
         `Contact?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
     );
-
     let contactId = null;
     let linkedAccId = null;
 
@@ -641,6 +640,7 @@ async function processIncomingEvent(eventData) {
 }
 
 }
+
 
 function formatPhoneNumber(phoneNumber) {
     if (!phoneNumber) {
