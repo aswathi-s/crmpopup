@@ -591,24 +591,24 @@ async function processIncomingEvent(eventData) {
     try {
 
 
-        // 0. Search for existing Leads
-        const leads = await Espo.Ajax.getRequest(
-            `Lead?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
-        );
-        if (leads.list.length > 0) {
-            window.location.hash = `#Lead/view/${leads.list[0].id}`;
-            return;
-        }
+        // // 0. Search for existing Leads
+        // const leads = await Espo.Ajax.getRequest(
+        //     `Lead?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
+        // );
+        // if (leads.list.length > 0) {
+        //     window.location.hash = `#Lead/view/${leads.list[0].id}`;
+        //     return;
+        // }
 
-        // 1. First search direct Opportunities
-        const directOpps = await Espo.Ajax.getRequest(
-            `Opportunity?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
-        );
+        // // 1. First search direct Opportunities
+        // const directOpps = await Espo.Ajax.getRequest(
+        //     `Opportunity?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
+        // );
 
-        if (directOpps.list.length > 0) {
-            window.location.hash = `#Opportunity/view/${directOpps.list[0].id}`;
-            return;
-        }
+        // if (directOpps.list.length > 0) {
+        //     window.location.hash = `#Opportunity/view/${directOpps.list[0].id}`;
+        //     return;
+        // }
 
         // 2. Search Contacts
         const contacts = await Espo.Ajax.getRequest(
@@ -622,37 +622,30 @@ async function processIncomingEvent(eventData) {
         const contact = contacts.list[0];
         contactId = contact.id;
 
-        // ✅ Get linked Account ID directly from the Contact
+        // Get linked Account ID directly from the Contact
         linkedAccId = contact.accountId || (contact.accountsIds ? contact.accountsIds[0] : null);
     }
 
     if (linkedAccId) {
-        // ✅ Contact has a linked Account → open that Account view
+        // Contact has a linked Account → open that Account view
         window.location.hash = `#Account/view/${linkedAccId}`;
         return;
     }
 
     if (contactId) {
-        // ❌ No linked Account → open Account list view
+        // No linked Account → open Account list view
         window.location.hash = `#Account`;
         return;
     }
-
-    // ❌ No contact found → also open Account list view
+        
+    // No contact found → also open Account list view
     window.location.hash = `#Account`;
 
 } catch (error) {
     console.error('BitvoiceCC Error:', error);
     window.location.hash = `#Account`;
 }
-
 }
-
-
-
-
-
-
 
 function formatPhoneNumber(phoneNumber) {
     if (!phoneNumber) {
