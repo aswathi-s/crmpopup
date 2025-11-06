@@ -590,7 +590,6 @@ async function processIncomingEvent(eventData) {
 
     try {
 
-
         // // 0. Search for existing Leads
         // const leads = await Espo.Ajax.getRequest(
         //     `Lead?maxSize=1&where[0][attribute]=phoneNumber&where[0][type]=equals&where[0][value]=${encodePhoneNumberForApi(phoneNumber)}`
@@ -618,33 +617,33 @@ async function processIncomingEvent(eventData) {
         let contactId = null;
         let linkedAccId = null;
 
-    if (contacts.list.length > 0) {
-        const contact = contacts.list[0];
-        contactId = contact.id;
+        if (contacts.list.length > 0) {
+            const contact = contacts.list[0];
+            contactId = contact.id;
 
-        // Get linked Account ID directly from the Contact
-        linkedAccId = contact.accountId || (contact.accountsIds ? contact.accountsIds[0] : null);
-    }
+            // Get linked Account ID directly from the Contact
+            linkedAccId = contact.accountId || (contact.accountsIds ? contact.accountsIds[0] : null);
+        }
 
-    if (linkedAccId) {
-        // Contact has a linked Account → open that Account view
-        window.location.hash = `#Account/view/${linkedAccId}`;
-        return;
-    }
+        if (linkedAccId) {
+            // Contact has a linked Account → open that Account view
+            window.location.hash = `#Account/view/${linkedAccId}`;
+            return;
+        }
 
-    if (contactId) {
-        // No linked Account → open Account list view
-        window.location.hash = `#Account`;
-        return;
-    }
+        if (contactId) {
+            // No linked Account → open Account list view
+            window.location.hash = `#Account`;
+            return;
+        }
         
-    // No contact found → also open Account list view
-    window.location.hash = `#Account`;
+        // No contact found → also open Account list view
+            window.location.hash = `#Account`;
 
-} catch (error) {
-    console.error('BitvoiceCC Error:', error);
-    window.location.hash = `#Account`;
-}
+    } catch (error) {
+        console.error('BitvoiceCC Error:', error);
+        window.location.hash = `#Account`;
+    }
 }
 
 function formatPhoneNumber(phoneNumber) {
