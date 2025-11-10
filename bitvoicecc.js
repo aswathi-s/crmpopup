@@ -189,7 +189,7 @@ window.BitvoiceCCF = {
         // Get current user data
         let userData = null;
         try {
-            const response = await window.Espo.Ajax.getRequest('api/v1/App/user');
+            const response = await window.Espo.Ajax.getRequest('App/user');
             userData = response.user;
         } catch (error) {
             console.warn('Could not fetch current user data:', error);
